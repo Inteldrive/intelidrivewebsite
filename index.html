@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelidrive Diagnostic Solutions - The Ultimate Vehicle & Equipment Tech Library</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb; /* bg-gray-50 */
+            color: #374151; /* text-gray-800 */
+        }
+        /* Custom scroll-behavior for smooth scrolling on anchor links */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Custom modal styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative; /* For close button positioning */
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Chat Widget Styles */
+        #chat-widget-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #ef4444; /* red-500 */
+            color: white;
+            border-radius: 9999px; /* full rounded */
+            padding: 1rem; /* p-4 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
+            cursor: pointer;
+            z-index: 999;
+            transition: transform 0.2s ease-in-out;
+        }
+        #chat-widget-button:hover {
+            transform: scale(1.05);
+            background-color: #dc2626; /* red-600 */
+        }
+        #chat-window {
+            display: none;
+            position: fixed;
+            bottom: 90px; /* Above the button */
+            right: 20px;
+            width: 90%;
+            max-width: 380px;
+            height: 500px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            z-index: 998;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #chat-header {
+            background-color: #dc2626; /* red-700 */
+            color: white;
+            padding: 1rem;
+            border-top-left-radius: 0.5rem; /* rounded-t-lg */
+            border-top-right-radius: 0.5rem; /* rounded-t-lg */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #chat-body {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: #f9fafb; /* bg-gray-50 */
+        }
+        #chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb; /* border-t border-gray-200 */
+            display: flex;
+        }
+        #chat-input {
+            flex-grow: 1;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db; /* border border-gray-300 */
+            border-top-left-radius: 0.375rem; /* rounded-l-md */
+            border-bottom-left-radius: 0.375rem; /* rounded-l-md */
+            outline: none;
+            transition: border-color 0.2s ease-in-out, ring-color 0.2s ease-in-out;
+        }
+        #chat-input:focus {
+            border-color: #ef4444; /* focus:border-red-500 */
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5); /* focus:ring-red-500 */
+        }
+        #chat-send-button {
+            background-color: #dc2626; /* red-700 */
+            color: white;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-top-right-radius: 0.375rem; /* rounded-r-md */
+            border-bottom-right-radius: 0.375rem; /* rounded-r-md */
+            transition: background-color 0.2s ease-in-out;
+        }
+        #chat-send-button:hover {
+            background-color: #b91c1c; /* hover:bg-red-800 */
+        }
+        .chat-message {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            max-width: 80%;
+        }
+        .chat-message.user {
+            background-color: #fee2e2; /* bg-red-100 */
+            color: #374151; /* text-gray-800 */
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .chat-message.ai {
+            background-color: #e5e7eb; /* bg-gray-200 */
+            color: #374151; /* text-gray-800 */
+            align-self: flex-start;
+            margin-right: auto;
+        }
+        .chat-message.loading {
+            background-color: #e5e7eb; /* bg-gray-200 */
+            color: #6b7280; /* text-gray-600 */
+            font-style: italic;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-md py-4 px-6 sticky top-0 z-50 rounded-b-lg">
+        <div class="container mx-auto flex justify-between items-center flex-wrap">
+            <!-- Logo - Intelidrive Diagnostic Solutions -->
+            <a href="#hero" class="flex items-center space-x-2 flex-shrink-0">
+                <!-- Placeholder for Intelidrive Diagnostic Solutions Logo -->
+                <img src="https://placehold.co/40x40/B91C1C/FFF?text=ID" alt="Intelidrive Diagnostic Solutions Logo" class="h-10 w-auto rounded-md">
+                <span class="text-2xl font-bold text-gray-900">Intelidrive Diagnostic Solutions</span>
+            </a>
+
+            <!-- Mobile Menu Button (visible on small screens) -->
+            <div class="md:hidden flex items-center ml-auto">
+                <button id="mobile-menu-button" class="text-gray-600 focus:outline-none p-2 rounded-md hover:bg-gray-100 transition duration-300">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+            </div>
+
+            <!-- Navigation Links (Desktop - hidden on small screens) -->
+            <div class="hidden md:flex space-x-8 ml-auto items-center" id="desktop-menu">
+                <a href="#hero" class="text-gray-600 hover:text-red-600 font-medium transition duration-300 ease-in-out rounded-md px-3 py-2">Home</a>
+                <a href="#features" class="text-gray-600 hover:text-red-600 font-medium transition duration-300 ease-in-out rounded-md px-3 py-2">Features</a>
+                <a href="#scope" class="text-gray-600 hover:text-red-600 font-medium transition duration-300 ease-in-out rounded-md px-3 py-2">Scope</a>
+                <a href="#whats-inside" class="text-gray-600 hover:text-red-600 font-medium transition duration-300 ease-in-out rounded-md px-3 py-2">What's Inside</a>
+                <a href="#tech-explainer" class="text-gray-600 hover:text-red-600 font-medium transition duration-300 ease-in-out rounded-md px-3 py-2">Tech Explainer</a>
+                <a href="#product-library" class="text-gray-600 hover:text-red-600 font-medium transition duration-300 ease-in-out rounded-md px-3 py-2">Product Library</a>
+                <a href="#brands" class="text-gray-600 hover:text-red-600 font-medium transition duration-300 ease-in-out rounded-md px-3 py-2">Brands</a>
+                <a href="#mission" class="text-gray-600 hover:text-red-600 font-medium transition duration-300 ease-in-out rounded-md px-3 py-2">Our Mission</a>
+                <a href="#contact" class="text-gray-600 hover:text-red-600 font-medium transition duration-300 ease-in-out rounded-md px-3 py-2">Contact</a>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default, stacked and bolder) -->
+        <div id="mobile-menu" class="hidden md:hidden mt-4 space-y-2">
+            <a href="#hero" class="block text-gray-600 hover:text-red-600 font-extrabold px-4 py-2 rounded-md transition duration-300 ease-in-out">Home</a>
+            <a href="#features" class="block text-gray-600 hover:text-red-600 font-extrabold px-4 py-2 rounded-md transition duration-300 ease-in-out">Features</a>
+            <a href="#scope" class="block text-gray-600 hover:text-red-600 font-extrabold px-4 py-2 rounded-md transition duration-300 ease-in-out">Scope</a>
+            <a href="#whats-inside" class="block text-gray-600 hover:text-red-600 font-extrabold px-4 py-2 rounded-md transition duration-300 ease-in-out">What's Inside</a>
+            <a href="#tech-explainer" class="block text-gray-600 hover:text-red-600 font-extrabold px-4 py-2 rounded-md transition duration-300 ease-in-out">Tech Explainer</a>
+            <a href="#product-library" class="block text-gray-600 hover:text-red-600 font-extrabold px-4 py-2 rounded-md transition duration-300 ease-in-out">Product Library</a>
+            <a href="#brands" class="block text-gray-600 hover:text-red-600 font-extrabold px-4 py-2 rounded-md transition duration-300 ease-in-out">Brands</a>
+            <a href="#mission" class="block text-gray-600 hover:text-red-600 font-extrabold px-4 py-2 rounded-md transition duration-300 ease-in-out">Our Mission</a>
+            <a href="#contact" class="block text-gray-600 hover:text-red-600 font-extrabold px-4 py-2 rounded-md transition duration-300 ease-in-out">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative bg-gradient-to-r from-gray-900 to-gray-700 text-white py-20 md:py-32 flex items-center justify-center min-h-screen-75 rounded-b-2xl shadow-xl">
+        <div class="container mx-auto text-center px-6">
+            <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-6 drop-shadow-lg">
+                🔧 The ULTIMATE Vehicle & Equipment Tech Library! 🚀<br class="hidden md:inline"> Unrivaled Access to **Original & Latest** Service Manuals & Diagnostics!
+            </h1>
+            <p class="text-xl md:text-2xl mb-10 max-w-4xl mx-auto opacity-90">
+                Stop Searching! Your Master Collection of Original Automotive & Heavy Equipment Software is HERE! Unlock UNLIMITED Tech Data: Cars, Trucks, Planes, Boats, Motorbikes & More! (**Originals & Up-to-date Versions Only!**)
+            </p>
+            <a href="#contact" class="bg-red-600 text-white hover:bg-red-700 px-10 py-4 rounded-full text-lg font-semibold shadow-lg transition duration-300 ease-in-out transform hover:scale-105 mt-8 inline-block">
+                Revolutionize Your Repair Capabilities!
+            </a>
+        </div>
+    </section>
+
+    <!-- Our Mission Section -->
+    <section id="mission" class="py-16 md:py-24 bg-gray-900 text-white text-center rounded-t-2xl shadow-xl">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <h2 class="text-4xl font-bold mb-8">Our Mission: Empowering Futures</h2>
+            <p class="text-xl leading-relaxed mb-4">
+                We believe in the power of knowledge and opportunity. That's why **all proceeds from this promotion and all future events** will go directly towards opening a state-of-the-art Training Centre/Academy.
+            </p>
+            <p class="text-xl leading-relaxed">
+                This is a **national project** aimed at establishing workshop training centers **all over** for the less fortunate individuals who are serious about their future in the automotive and heavy equipment industries. When you invest in Intelidrive, you're investing in a legacy of empowerment.
+            </p>
+        </div>
+    </section>
+
+    <!-- Ad Body - Introduction & Service Offerings -->
+    <section class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <p class="text-lg text-gray-700 leading-relaxed mb-8">
+                Are you tired of endless searching for reliable, in-depth technical information? Imagine having the complete diagnostic, service, repair, and training data for virtually any vehicle or engine at your fingertips. This isn't just a collection; it's the master archive for professionals and enthusiasts alike, featuring **the most current and genuine software available.**
+            </p>
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">What makes this collection truly unique?</h2>
+
+            <div class="mt-12 p-6 bg-red-50 rounded-xl shadow-md text-center">
+                <h3 class="text-2xl font-bold text-red-700 mb-4">Our Core Offering: Software & Support</h3>
+                <p class="text-lg text-gray-700 leading-relaxed">
+                    At Intelidrive Diagnostic Solutions, we specialize in providing you with **cutting-edge diagnostic software and comprehensive technical support, including installation assistance.** Our focus is on delivering the software tools you need to excel.
+                </p>
+                <p class="text-lg text-gray-700 leading-relaxed mt-4">
+                    While our primary offering is software, we understand the need for complete solutions. Therefore, if clients require **diagnostic hardware (interfaces, necessary cables, and power supplies)**, we can **assist in ordering these at an extra charge.** This focused approach allows us to keep our software pricing highly competitive and ensure a continuous flow of the latest genuine solutions to your hands.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features Section -->
+    <section id="features" class="py-16 md:py-24 bg-red-50">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <div class="text-red-600 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 4.016M2.944 12a11.955 11.955 0 014.016-8.618M12 21.056a11.955 11.955 0 01-8.618-4.016m8.618 4.016A11.955 11.955 0 0021.056 12c0-2.07-.635-4.017-1.73-5.618M12 21.056a11.955 11.955 0 008.618-4.016m-8.618 4.016A11.955 11.955 0 012.944 12c0-2.07.635-4.017 1.73-5.618m0 0A11.955 11.955 0 0112 2.944a11.955 11.955 0 018.618 4.016m-8.618-4.016A11.955 11.955 0 0012 2.944c-2.07 0-4.017.635-5.618 1.73z" />
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-semibold text-gray-900 mb-2">100% Original & Up-to-date Software</h4>
+                    <p class="text-gray-700">Forget the "knock-offs" and outdated versions. This is legitimate, authentic workshop, training, and diagnostic software, ensuring accuracy and reliability for modern vehicles.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <div class="text-red-600 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-semibold text-gray-900 mb-2">Open, Unlimited Licenses</h4>
+                    <p class="text-gray-700">No hidden fees, no per-seat charges. Once you have it, it’s yours to use without restriction. A truly unprecedented value!</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <div class="text-red-600 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684L10.5 9l2.572-5.432a1 1 0 01.947-.684H19a2 2 0 012 2v10a2 2 0 01-2 2h-3.28a1 1 0 01-.948-.684L13.5 15l-2.572 5.432a1 1 0 01-.947.684H5a2 2 0 01-2-2V5z" />
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-semibold text-gray-900 mb-2">Unrivaled Scope & Compatibility</h4>
+                    <p class="text-gray-700">Spanning decades of models and covering an astonishing range of vehicle and equipment types, ensuring compatibility with the latest systems.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Unrivaled Scope Section -->
+    <section id="scope" class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">Unrivaled Scope: Covering Every Vehicle & Equipment Type</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold text-red-700 mb-3">Passenger Vehicles</h3>
+                    <p class="text-gray-700">Extensive data for cars and SUVs from major manufacturers worldwide.</p>
+                </div>
+                <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold text-red-700 mb-3">Heavy Commercial Trucks</h3>
+                    <p class="text-gray-700">In-depth coverage for giants like MAN, Mitsubishi FUSO, Nissan UD, Renault (Kerax, Midlum, Premium, Magnum), TATA – including engine manuals, wiring diagrams, fault codes, parts lists, and specialized hybrid system data.</p>
+                </div>
+                <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold text-red-700 mb-3">Industrial & Construction Equipment</h3>
+                    <p class="text-gray-700">Comprehensive resources for Caterpillar, John Deere, Komatsu, and various forklifts (Mitsubishi, Nissan).</p>
+                </div>
+                <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold text-red-700 mb-3">Engines & Components</h3>
+                    <p class="text-gray-700">Detailed manuals for a vast array of diesel and industrial engines (e.g., Scania DC/DI series, Mitsubishi 6D/4M series, Nissan PF-series).</p>
+                </div>
+                <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold text-red-700 mb-3">Specialized Equipment</h3>
+                    <p class="text-gray-700">Data for generators, earthmoving machinery, and other specialized systems.</p>
+                </div>
+                <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold text-red-700 mb-3">Beyond the Road</h3>
+                    <p class="text-gray-700">Yes, you read that right! We're talking manuals for Motorbikes, Big Planes, Small Planes, Boats, Jetskis, Motorhomes, and **Drones**!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What's Inside Section -->
+    <section id="whats-inside" class="py-16 md:py-24 bg-red-700 text-white">
+        <div class="container mx-auto px-6 text-center max-w-4xl">
+            <h2 class="text-4xl font-bold mb-12">What's Inside? Access Everything From:</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-red-800 p-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out">
+                    <h3 class="text-xl font-semibold mb-3">Full Service & Repair Manuals</h3>
+                </div>
+                <div class="bg-red-800 p-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out">
+                    <h3 class="text-xl font-semibold mb-3">Detailed Wiring Diagrams</h3>
+                </div>
+                <div class="bg-red-800 p-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out">
+                    <h3 class="text-xl font-semibold mb-3">Accurate Fault Code Lists & Diagnostics Documents</h3>
+                </div>
+                <div class="bg-red-800 p-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out">
+                    <h3 class="text-xl font-semibold mb-3">Comprehensive Parts Catalogs</h3>
+                </div>
+                <div class="bg-red-800 p-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out">
+                    <h3 class="text-xl font-semibold mb-3">Operator's & Owner's Manuals</h3>
+                </div>
+                <div class="bg-red-800 p-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out">
+                    <h3 class="text-xl font-semibold mb-3">Technical Specifications & Troubleshooting Guides</h3>
+                </div>
+                <div class="bg-red-800 p-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out col-span-1 md:col-span-2 lg:col-span-3">
+                    <h3 class="text-xl font-semibold mb-3">Specialized Training & Bodywork Manuals</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gemini API - Technical Document Explainer -->
+    <section id="tech-explainer" class="py-16 md:py-24 bg-red-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">✨ Technical Document Explainer ✨</h2>
+            <p class="text-lg text-gray-700 mb-6 text-center max-w-2xl mx-auto">
+                Paste any technical text, fault code description, or complex manual excerpt below, and our AI will provide a simplified explanation or summary.
+            </p>
+            <div class="max-w-3xl mx-auto space-y-4">
+                <div>
+                    <label for="tech-input" class="block text-left text-gray-700 text-sm font-medium mb-2">Paste Technical Text Here:</label>
+                    <textarea id="tech-input" rows="8" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 transition duration-200 ease-in-out" placeholder="e.g., 'P0420 Catalyst System Efficiency Below Threshold (Bank 1)' or a paragraph from a service manual."></textarea>
+                </div>
+                <button id="explain-tech-button" class="w-full bg-red-700 text-white hover:bg-red-800 px-6 py-3 rounded-lg text-lg font-semibold shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center">
+                    <span id="explain-button-text">Explain This Document</span>
+                    <svg id="explain-loading-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+                <div id="tech-output" class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 text-left whitespace-pre-wrap">
+                    <!-- AI explanation will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gemini API - Fault Code Lookup & Troubleshooting -->
+    <section id="fault-code-lookup" class="py-16 md:py-24 bg-red-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">✨ Fault Code Lookup & Troubleshooting ✨</h2>
+            <p class="text-lg text-gray-700 mb-6 text-center max-w-2xl mx-auto">
+                Enter a diagnostic trouble code (DTC) to get a clear explanation, common causes, and initial troubleshooting steps.
+            </p>
+            <div class="max-w-3xl mx-auto space-y-4">
+                <div>
+                    <label for="fault-code-input" class="block text-left text-gray-700 text-sm font-medium mb-2">Enter Fault Code (e.g., P0420, B0001, U0100, SPN 100 FMI 8):</label>
+                    <input type="text" id="fault-code-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 transition duration-200 ease-in-out" placeholder="e.g., P0420">
+                </div>
+                <button id="lookup-fault-code-button" class="w-full bg-red-700 text-white hover:bg-red-800 px-6 py-3 rounded-lg text-lg font-semibold shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center">
+                    <span id="lookup-button-text">Get Troubleshooting Advice</span>
+                    <svg id="lookup-loading-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+                <div id="fault-code-output" class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 text-left whitespace-pre-wrap">
+                    <!-- AI explanation will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Library Overview Section (Digital Products) -->
+    <section id="product-library" class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">Our Digital Product Library: Unparalleled Technical Knowledge</h2>
+            <p class="text-lg text-gray-700 mb-10 text-center max-w-4xl mx-auto">
+                Explore our comprehensive collection of original diagnostic software and service manuals, meticulously curated to empower your repair and maintenance capabilities.
+            </p>
+
+            <!-- Opening Special Banner -->
+            <div class="bg-red-100 text-red-800 text-center py-4 px-6 rounded-lg mb-12 shadow-lg">
+                <h3 class="text-3xl font-extrabold">🚨 Opening Special: All Genuine Licensed Software & Stock Less 50%! 🚨</h3>
+                <p class="text-xl mt-2">Limited time offer! All stock while stock last or sold out!</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Product Card: Autocom Diagnostic Suite -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=AutoCom" alt="Autocom Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Autocom Diagnostic Suite</h3>
+                    <p class="text-gray-700 mb-4">Comprehensive diagnostic software for a wide range of passenger cars and light commercial vehicles. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 12,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 6,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: Delphi Diagnostic Software -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=Delphi" alt="Delphi Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Delphi Diagnostic Software</h3>
+                    <p class="text-gray-700 mb-4">Powerful multi-brand diagnostic solution for cars, trucks, and buses. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 12,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 6,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: WOW! Wurth Online World (WOW! Wurth) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=Wurth" alt="Wurth Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">WOW! Wurth Online World (WOW! Wurth)</h3>
+                    <p class="text-gray-700 mb-4">Complete diagnostic and technical information system. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 15,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 7,500.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: Launch X431 (Multi-Scan Launch) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=Launch" alt="Launch Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Launch X431 (Multi-Scan Launch)</h3>
+                    <p class="text-gray-700 mb-4">Advanced diagnostic software supporting extensive vehicle models. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 18,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 9,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: TEXA IDC5 (Car/Truck/Off-Highway) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=TEXA" alt="TEXA Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">TEXA IDC5 (Car/Truck/Off-Highway)</h3>
+                    <p class="text-gray-700 mb-4">Comprehensive diagnostic platform for cars, trucks, motorcycles, agricultural, and construction vehicles. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 22,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 11,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: XTOOL Diagnostic Software -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=XTOOL" alt="XTOOL Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">XTOOL Diagnostic Software</h3>
+                    <p class="text-gray-700 mb-4">Versatile diagnostic software covering a broad range of vehicle systems. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 10,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 5,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: Nexiq (JPRO) Diagnostic Software -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=Nexiq" alt="Nexiq Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Nexiq (JPRO) Diagnostic Software</h3>
+                    <p class="text-gray-700 mb-4">Industry-leading diagnostic software for heavy-duty trucks. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 20,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 10,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: OFFBOARD DIAGNOSTICS (Generic) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=OFFBD" alt="OFFBOARD Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">OFFBOARD DIAGNOSTICS (Generic)</h3>
+                    <p class="text-gray-700 mb-4">Powerful suite of generic off-board diagnostic tools for various vehicle systems. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 9,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 4,500.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: ODIS (VW/Audi/Skoda/Seat) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=ODIS" alt="ODIS Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">ODIS (VW/Audi/Skoda/Seat)</h3>
+                    <p class="text-gray-700 mb-4">Official diagnostic and programming software for Volkswagen Group vehicles. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 14,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 7,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: VCDS (VAG-COM Diagnostic System) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=VCDS" alt="VCDS Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">VCDS (VAG-COM Diagnostic System)</h3>
+                    <p class="text-gray-700 mb-4">Popular aftermarket diagnostic software specifically for VW, Audi, Skoda, and Seat vehicles. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 7,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 3,500.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: IDS for Ford (Integrated Diagnostic Software) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=IDS" alt="IDS Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">IDS for Ford (Integrated Diagnostic Software)</h3>
+                    <p class="text-gray-700 mb-4">OEM diagnostic software for Ford and Mazda vehicles. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 15,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 7,500.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: OP-COM (Opel/Vauxhall) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=OP-COM" alt="OP-COM Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">OP-COM (Opel/Vauxhall)</h3>
+                    <p class="text-gray-700 mb-4">Dedicated diagnostic and programming tool for Opel and Vauxhall vehicles. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 6,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 3,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: Lexus Reprogramming & Calibration Suite -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=Lexus" alt="Lexus Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Lexus Reprogramming & Calibration Suite</h3>
+                    <p class="text-gray-700 mb-4">Specialized software for advanced reprogramming and calibration of Lexus vehicle modules. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 10,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 5,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: AlfaOBD (Multi-Brand) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=AlfaOBD" alt="AlfaOBD Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">AlfaOBD (Multi-Brand)</h3>
+                    <p class="text-gray-700 mb-4">Diagnostic software for Fiat, Alfa Romeo, Lancia, and Chrysler Group vehicles. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 5,500.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 2,750.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: FESB MultiScan (Fiat/Alfa Romeo/Lancia) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=FESB" alt="FESB Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">FESB MultiScan (Fiat/Alfa Romeo/Lancia)</h3>
+                    <p class="text-gray-700 mb-4">Diagnostic software specifically for Fiat, Alfa Romeo, and Lancia vehicles. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 5,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 2,500.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: Carly Pro (Phone Diagnostic) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=Carly" alt="Carly Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Carly Pro (Phone Diagnostic)</h3>
+                    <p class="text-gray-700 mb-4">Mobile phone-based diagnostic solution supporting a wide range of car brands. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 3,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 1,500.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: OBDeleven (Phone Diagnostic) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=OBD11" alt="OBDeleven Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">OBDeleven (Phone Diagnostic)</h3>
+                    <p class="text-gray-700 mb-4">Mobile diagnostic tool for Volkswagen Group vehicles. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 2,500.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 1,250.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: Maxi BMW Diagnostic Software -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=BMW" alt="BMW Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Maxi BMW Diagnostic Software</h3>
+                    <p class="text-gray-700 mb-4">Comprehensive diagnostic and coding solution for BMW vehicles. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 11,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 5,500.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: Scania SDP3 (Diagnostic & Programmer) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=Scania" alt="Scania Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Scania SDP3 (Diagnostic & Programmer)</h3>
+                    <p class="text-gray-700 mb-4">Official diagnostic software for Scania trucks and buses. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 18,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 9,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: UD (Nissan Trucks) Diagnostic Software -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=UD" alt="UD Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">UD (Nissan Trucks) Diagnostic Software</h3>
+                    <p class="text-gray-700 mb-4">Dedicated diagnostic software for Nissan UD trucks. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 16,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 8,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: DAF Davie (DAF Trucks) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=DAF" alt="DAF Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">DAF Davie (DAF Trucks)</h3>
+                    <p class="text-gray-700 mb-4">OEM diagnostic software for DAF trucks. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 17,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 8,500.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: John Deere Service Advisor -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=JD" alt="John Deere Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">John Deere Service Advisor</h3>
+                    <p class="text-gray-700 mb-4">Comprehensive diagnostic and service software for John Deere agricultural and construction equipment. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 20,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 10,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: McCormick & Landini All Modules Software -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=McCormick" alt="McCormick Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">McCormick & Landini All Modules Software</h3>
+                    <p class="text-gray-700 mb-4">Complete diagnostic and technical software for McCormick and Landini farming tractors and equipment. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 15,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 7,500.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: MF (Massey Ferguson) Tractors All Modules Software -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=MF" alt="Massey Ferguson Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">MF (Massey Ferguson) Tractors All Modules Software</h3>
+                    <p class="text-gray-700 mb-4">Comprehensive diagnostic and technical software for all Massey Ferguson tractor models and modules. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 15,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 7,500.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: Case & Fiat Farming Equipment Software -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=Case" alt="Case Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Case & Fiat Farming Equipment Software</h3>
+                    <p class="text-gray-700 mb-4">Diagnostic and technical information software for Case and Fiat agricultural machinery. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 14,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 7,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: ThinkCar / Topdon (Mobile Solutions) -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=ThinkCar" alt="ThinkCar Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">ThinkCar / Topdon (Mobile Solutions)</h3>
+                    <p class="text-gray-700 mb-4">Mobile-based diagnostic solutions offering advanced features. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 4,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 2,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: InfoCar Diagnostic Software -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=InfoCar" alt="InfoCar Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">InfoCar Diagnostic Software</h3>
+                    <p class="text-gray-700 mb-4">General diagnostic software providing essential fault code reading, live data, and basic system checks. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 3,500.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 1,750.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: SBB PRO2 Key Programmer -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=SBB" alt="SBB Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">SBB PRO2 Key Programmer</h3>
+                    <p class="text-gray-700 mb-4">Professional key programming tool for various vehicle makes. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 9,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 4,500.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: X-DECODER Software -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=Decoder" alt="Decoder Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">X-DECODER Software</h3>
+                    <p class="text-gray-700 mb-4">Specialized decoding software for various automotive systems. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 8,000.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 4,000.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+
+                <!-- Product Card: Renault (IMMO) Immobilizer Software -->
+                <div class="bg-gray-100 p-8 rounded-xl shadow-md flex flex-col items-center text-center transform hover:scale-105 transition duration-300 ease-in-out">
+                    <img src="https://placehold.co/100x100/FEE2E2/B91C1C?text=Renault" alt="Renault Icon" class="mb-4 rounded-full">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Renault (IMMO) Immobilizer Software</h3>
+                    <p class="text-gray-700 mb-4">Dedicated software for Renault immobilizer systems. **Software only, hardware not included.**</p>
+                    <p class="text-xl text-gray-500 line-through">ZAR 7,500.00</p>
+                    <p class="text-3xl font-bold text-red-700 mb-2">ZAR 3,750.00</p>
+                    <p class="text-sm text-red-500 font-semibold mb-4">All stock while stock last or sold out!</p>
+                    <button class="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-full text-md font-semibold transition duration-300 ease-in-out">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Ultimate Collection Offer -->
+            <div class="mt-20 p-8 rounded-xl shadow-lg bg-gradient-to-r from-gray-800 to-gray-600 text-white">
+                <h3 class="text-4xl font-extrabold mb-6">🚀 The Ultimate Collection! 🚀</h3>
+                <p class="text-xl mb-8 max-w-2xl mx-auto">For the ultimate professional, this package is the BEST INVESTMENT A COMPANY CAN MAKE FOR RUNNING A SUPER COOL BUSINESS FOR YEARS TO COME.</p>
+                <ul class="text-xl mb-8 list-disc list-inside mx-auto max-w-md text-left space-y-2">
+                    <li>Complete AllData & Workshop Software: For running a smooth workshop environment, covering complete trucks and cars, with free updates for one year.</li>
+                    <li>TEXA Software (Choice of Car OR Truck): Client chooses either the TEXA Car software or the TEXA Truck software, with free updates for one year.</li>
+                    <li>Mobile Handset/Android Phone Software: Fully activated, to use on their Android phone, with free updates for one year.</li>
+                    <li>X-DECODER 10-3 Software: With free updates for one year.</li>
+                    <li>PLUS: Free Technical Support for one year!</li>
+                    <li>"Extra Pudding" Bonus: 3 extra mobile software installations of the winner's choice for technicians (or Wi-Fi or Brother software), fully activated.</li>
+                    <li>Business Management Bonus: Service Reception Organizer Software – KEEPING YOUR BUSINESS RUNNING SMOOTH LIKE A BABBYS BUM!</li>
+                </ul>
+                <p class="text-xl text-yellow-300 font-semibold mb-4">Promotion only valid while stock last! Special starts July 20, 2025 and ends on August 10, 2025, or when stock is sold out.</p>
+                <div class="bg-gradient-to-r from-gray-900 to-gray-700 text-white p-8 rounded-xl shadow-lg inline-block transform hover:scale-105 transition duration-300 ease-in-out">
+                    <p class="text-5xl font-extrabold mb-4">ZAR 50,000.00</p>
+                    <p class="text-xl">One-time purchase for this essential, high-value technical data package!</p>
+                </div>
+                <button class="inline-block bg-white text-gray-900 hover:bg-gray-200 px-10 py-4 rounded-full text-lg font-semibold mt-8 shadow-md transition duration-300 ease-in-out transform hover:scale-105" onclick="showModal('ultimateCollectionModal')">
+                    Inquire About the Ultimate Collection
+                </button>
+            </div>
+
+            <!-- Big Surprise Lottery Section -->
+            <div class="mt-20 p-8 rounded-xl shadow-lg bg-gradient-to-r from-red-600 to-red-800 text-white">
+                <h3 class="text-4xl font-extrabold mb-6">🎉 Another Big Surprise: Test Your Luck! 🎉</h3>
+                <p class="text-xl mb-6">Enter the draw for a chance to win the exact same promotional package software deal!</p>
+                <ul class="text-xl list-disc list-inside mx-auto max-w-md text-left mb-6 space-y-2">
+                    <li>**Standard Entry:** A ticket for the draw is **ZAR 150.00 for 1 ticket!**</li>
+                    <li>**Referral Bonus:** For every ZAR 1,000.00 spent by a paying client you bring to us, you earn 1 point. Accumulate 10 points to get 1 entry into the draw. Keep the receipt as proof of purchase of the client you introduced supporting us.</li>
+                </ul>
+                <p class="text-xl font-semibold mb-4">**Draw Details:**</p>
+                <ul class="text-xl list-disc list-inside mx-auto max-w-md text-left mb-8 space-y-2">
+                    <li>Entries close on: **August 25, 2025**</li>
+                    <li>Draw takes place on: **September 1, 2025**</li>
+                </ul>
+                <h4 class="text-3xl font-extrabold mb-4">Amazing Prizes:</h4>
+                <ul class="text-xl list-disc list-inside mx-auto max-w-md text-left space-y-2">
+                    <li>1st Prize: The exact same promotional package software deal (ZAR 50,000.00 Ultimate Collection)!</li>
+                    <li>2nd Prize: CarPal Bluetooth Device and relevant CarPal diagnostic software, with free updates for 1 year.</li>
+                    <li>3rd Prize: A DIY small socket set (34 piece), a medium size screwdrivers set, an OBD Bluetooth dongle, and Torque Pro 2 diagnostic software.</li>
+                </ul>
+                <button class="inline-block bg-white text-red-900 hover:bg-gray-200 px-10 py-4 rounded-full text-lg font-semibold mt-8 shadow-md transition duration-300 ease-in-out transform hover:scale-105" onclick="showModal('lotteryDrawModal')">
+                    Enter the Draw / Learn More
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Haynes Manuals Section -->
+    <section id="haynes" class="py-16 md:py-24 bg-red-50">
+        <div class="container mx-auto px-6 max-w-4xl text-center">
+            <h2 class="text-4xl font-bold text-gray-900 mb-8">Haynes Manuals: Your Trusted Companion (Digital Format)</h2>
+            <p class="text-lg text-gray-700 mb-6">
+                In addition to our advanced diagnostic software, we also offer a vast collection of **Haynes Repair Manuals in convenient PDF format.** These renowned manuals provide detailed, step-by-step guidance for a wide range of vehicles, perfect for hands-on repairs and troubleshooting.
+            </p>
+            <p class="text-lg text-gray-700 mb-8">
+                Enjoy the ease of having these essential guides on your mobile device, tablet, or laptop – far more practical than a physical book in the workshop! We are continuously expanding our collection to include the most popular brands and best-selling models.
+            </p>
+            <button class="bg-gray-700 text-white hover:bg-gray-800 px-8 py-3 rounded-full text-lg font-semibold shadow-md transition duration-300 ease-in-out transform hover:scale-105" onclick="showModal('haynesManualsModal')">
+                Inquire About Specific Haynes Manuals
+            </button>
+        </div>
+    </section>
+
+    <!-- Featured Brands & Systems Section -->
+    <section id="brands" class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-6 max-w-4xl text-center">
+            <h2 class="text-4xl font-bold text-gray-900 mb-8">Featured Brands & Systems Include:</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                <div class="bg-gray-100 p-4 rounded-lg shadow-sm text-lg font-semibold text-red-700">Autodata (Latest Edition)</div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-sm text-lg font-semibold text-red-700">Service Adviser</div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-sm text-lg font-semibold text-red-700">XENTRY</div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-sm text-lg font-semibold text-red-700">JPRO</div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-sm text-lg font-semibold text-red-700">Scania SDP3</div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-sm text-lg font-semibold text-red-700">TEXA</div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-sm text-lg font-semibold text-red-700">MAN</div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-sm text-lg font-semibold text-red-700">Mitsubishi</div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-sm text-lg font-semibold text-red-700">Nissan</div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-sm text-lg font-semibold text-red-700">Renault</div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-sm text-lg font-semibold text-red-700">TATA</div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-sm text-lg font-semibold text-red-700">Scania</div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-sm text-lg font-semibold text-red-700">And Many More!</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Must-Have Section -->
+    <section id="why-must-have" class="py-16 md:py-24 bg-gray-900 text-white">
+        <div class="container mx-auto px-6 max-w-5xl text-center">
+            <h2 class="text-4xl font-bold mb-12">Why This Collection is a Must-Have:</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-gray-800 p-8 rounded-xl shadow-md flex flex-col items-center text-center">
+                    <span class="text-red-400 text-5xl mb-4">⏱️</span>
+                    <h3 class="text-2xl font-semibold mb-3">Save Time & Money</h3>
+                    <p class="text-gray-300">Diagnose issues faster, perform repairs efficiently, and reduce costly trial-and-error with **up-to-date, accurate data.**</p>
+                </div>
+                <div class="bg-gray-800 p-8 rounded-xl shadow-md flex flex-col items-center text-center">
+                    <span class="text-red-400 text-5xl mb-4">✅</span>
+                    <h3 class="text-2xl font-semibold mb-3">Ensure Accuracy & Modern Compatibility</h3>
+                    <p class="text-gray-300">Work with factory-level precision and **official, current data**, minimizing errors and ensuring compatibility with the latest vehicle models.</p>
+                </div>
+                <div class="bg-gray-800 p-8 rounded-xl shadow-md flex flex-col items-center text-center">
+                    <span class="text-red-400 text-5xl mb-4">📈</span>
+                    <h3 class="text-2xl font-semibold mb-3">Expand Your Capabilities</h3>
+                    <p class="text-gray-300">Handle a wider range of vehicles and complex systems, opening new service opportunities with **cutting-edge diagnostic power.**</p>
+                </div>
+                <div class="bg-gray-800 p-8 rounded-xl shadow-md flex flex-col items-center text-center">
+                    <span class="text-red-400 text-5xl mb-4">🔮</span>
+                    <h3 class="text-2xl font-semibold mb-3">Future-Proof Your Workshop</h3>
+                    <p class="text-gray-300">An evergreen resource that keeps you **ahead of industry changes and outdated competitor offerings**, paying for itself over time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 md:py-24 bg-red-800 text-white">
+        <div class="container mx-auto px-6 text-center max-w-3xl">
+            <h2 class="text-4xl font-bold mb-8">Ready to revolutionize your repair capabilities?</h2>
+            <p class="text-xl mb-10 opacity-90">
+                Contact Chris today for more information and to secure your access to this unparalleled technical knowledge base!
+            </p>
+            <div class="space-y-6 md:space-y-0 md:flex md:justify-center md:space-x-8">
+                <div class="flex items-center justify-center text-lg">
+                    <span class="mr-2">📞</span>
+                    <span>073-011-7680 (Main)</span>
+                </div>
+                <div class="flex items-center justify-center text-lg">
+                    <span class="mr-2">📧</span>
+                    <span>intelidrivediagnosticsolutions@gmail.com</span>
+                </div>
+                <div class="flex items-center justify-center text-lg">
+                    <span class="mr-2">📍</span>
+                    <span>79 15th Ave Boksburg North 1459 Gauteng</span>
+                </div>
+                <div class="flex items-center justify-center text-lg">
+                    <span class="mr-2">📱</span>
+                    <span>074-071-2230 (WhatsApp)</span>
+                </div>
+            </div>
+            <p class="text-xl mt-6 opacity-90">
+                Nationwide Delivery
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-10 px-6 rounded-t-2xl">
+        <div class="container mx-auto text-center">
+            <p class="text-sm">&copy; 2025 Intelidrive Diagnostic Solutions. All rights reserved.</p>
+            <div class="mt-4 space-x-4">
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300 ease-in-out">Privacy Policy</a>
+                <span class="text-gray-600">|</span>
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300 ease-in-out">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals for Inquiries (Hidden by default) -->
+    <div id="ultimateCollectionModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideModal('ultimateCollectionModal')">&times;</span>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">Inquire About The Ultimate Collection</h3>
+            <p class="text-gray-700 mb-4">Please contact us directly for more information on this exclusive package:</p>
+            <p class="text-lg font-semibold text-red-700">📞 073-011-7680</p>
+            <p class="text-lg font-semibold text-red-700">📧 intelidrivediagnosticsolutions@gmail.com</p>
+            <p class="text-sm text-gray-500 mt-4">We look forward to hearing from you!</p>
+        </div>
+    </div>
+
+    <div id="lotteryDrawModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideModal('lotteryDrawModal')">&times;</span>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">Enter The Draw / Learn More</h3>
+            <p class="text-gray-700 mb-4">To enter the draw or get more details, please reach out to us:</p>
+            <p class="text-lg font-semibold text-red-700">📞 073-011-7680</p>
+            <p class="text-lg font-semibold text-red-700">📧 intelidrivediagnosticsolutions@gmail.com</p>
+            <p class="text-sm text-gray-500 mt-4">Good luck!</p>
+        </div>
+    </div>
+
+    <div id="haynesManualsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideModal('haynesManualsModal')">&times;</span>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">Inquire About Haynes Manuals</h3>
+            <p class="text-gray-700 mb-4">Tell us which Haynes Manuals you're looking for! Contact us:</p>
+            <p class="text-lg font-semibold text-red-700">📞 073-011-7680</p>
+            <p class="text-lg font-semibold text-red-700">📧 intelidrivediagnosticsolutions@gmail.com</p>
+            <p class="text-sm text-gray-500 mt-4">We'll help you find it!</p>
+        </div>
+    </div>
+
+    <!-- JavaScript for Mobile Menu and Modals -->
+    <div id="chat-widget-button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+        </svg>
+    </div>
+
+    <div id="chat-window">
+        <div id="chat-header">
+            <h4 class="text-lg font-semibold">Chat with Intelidrive AI</h4>
+            <button id="chat-close-button" class="text-white hover:text-gray-200 focus:outline-none">&times;</button>
+        </div>
+        <div id="chat-body" class="flex flex-col">
+            <!-- Chat messages will appear here -->
+        </div>
+        <div id="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Type your message...">
+            <button id="chat-send-button">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            var mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when a link is clicked
+        var mobileMenuLinks = document.querySelectorAll('#mobile-menu a');
+        mobileMenuLinks.forEach(function(link) {
+            link.addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.add('hidden');
+            });
+        });
+
+        // Modal Functions
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside of the content
+        window.onclick = function(event) {
+            var modals = document.querySelectorAll('.modal');
+            modals.forEach(function(modal) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            });
+        }
+
+        // Gemini API Integration for Tech Explainer
+        const techInput = document.getElementById('tech-input');
+        const explainTechButton = document.getElementById('explain-tech-button');
+        const explainButtonText = document.getElementById('explain-button-text');
+        const explainLoadingSpinner = document.getElementById('explain-loading-spinner');
+        const techOutput = document.getElementById('tech-output');
+
+        explainTechButton.addEventListener('click', async () => {
+            const prompt = techInput.value.trim();
+            if (!prompt) {
+                techOutput.textContent = 'Please enter some text to explain.';
+                return;
+            }
+
+            explainButtonText.textContent = 'Explaining...';
+            explainLoadingSpinner.classList.remove('hidden');
+            explainTechButton.disabled = true;
+            techOutput.textContent = 'Generating explanation...';
+
+            try {
+                const apiKey = ""; // Leave as is, Canvas will provide in runtime
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: `Explain the following technical automotive text in simple terms: "${prompt}"` }] }]
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    techOutput.textContent = result.candidates[0].content.parts[0].text;
+                } else {
+                    techOutput.textContent = 'Sorry, I could not generate an explanation. Please try again.';
+                    console.error('Unexpected API response structure:', result);
+                }
+            } catch (error) {
+                techOutput.textContent = 'An error occurred while connecting to the AI. Please try again later.';
+                console.error('Error calling Gemini API:', error);
+            } finally {
+                explainButtonText.textContent = 'Explain This Document';
+                explainLoadingSpinner.classList.add('hidden');
+                explainTechButton.disabled = false;
+            }
+        });
+
+        // Gemini API Integration for Fault Code Lookup
+        const faultCodeInput = document.getElementById('fault-code-input');
+        const lookupFaultCodeButton = document.getElementById('lookup-fault-code-button');
+        const lookupButtonText = document.getElementById('lookup-button-text');
+        const lookupLoadingSpinner = document.getElementById('lookup-loading-spinner');
+        const faultCodeOutput = document.getElementById('fault-code-output');
+
+        lookupFaultCodeButton.addEventListener('click', async () => {
+            const prompt = faultCodeInput.value.trim();
+            if (!prompt) {
+                faultCodeOutput.textContent = 'Please enter a fault code.';
+                return;
+            }
+
+            lookupButtonText.textContent = 'Looking Up...';
+            lookupLoadingSpinner.classList.remove('hidden');
+            lookupFaultCodeButton.disabled = true;
+            faultCodeOutput.textContent = 'Searching for fault code explanation...';
+
+            try {
+                const apiKey = ""; // Leave as is, Canvas will provide in runtime
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: `Explain the automotive diagnostic trouble code (DTC) or fault code "${prompt}". Provide its full meaning, common causes, and initial troubleshooting steps. If it's a generic code, mention that. Do not provide disclaimers about being an AI, just provide the explanation.` }] }]
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    faultCodeOutput.textContent = result.candidates[0].content.parts[0].text;
+                } else {
+                    faultCodeOutput.textContent = 'Sorry, I could not find an explanation for this fault code. Please check the code and try again.';
+                    console.error('Unexpected API response structure:', result);
+                }
+            } catch (error) {
+                faultCodeOutput.textContent = 'An error occurred while connecting to the AI. Please try again later.';
+                console.error('Error calling Gemini API:', error);
+            } finally {
+                lookupButtonText.textContent = 'Get Troubleshooting Advice';
+                lookupLoadingSpinner.classList.add('hidden');
+                lookupFaultCodeButton.disabled = false;
+            }
+        });
+
+        // Chat Widget Functionality (Not connected to AI in this HTML version)
+        const chatWidgetButton = document.getElementById('chat-widget-button');
+        const chatWindow = document.getElementById('chat-window');
+        const chatCloseButton = document.getElementById('chat-close-button');
+        const chatInput = document.getElementById('chat-input');
+        const chatSendButton = document.getElementById('chat-send-button');
+        const chatBody = document.getElementById('chat-body');
+
+        chatWidgetButton.addEventListener('click', () => {
+            chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        chatCloseButton.addEventListener('click', () => {
+            chatWindow.style.display = 'none';
+        });
+
+        chatSendButton.addEventListener('click', () => {
+            sendMessageToChat();
+        });
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessageToChat();
+            }
+        });
+
+        function sendMessageToChat() {
+            const messageText = chatInput.value.trim();
+            if (messageText === '') return;
+
+            // Add user message to chat body
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.classList.add('chat-message', 'user');
+            userMessageDiv.textContent = messageText;
+            chatBody.appendChild(userMessageDiv);
+
+            chatInput.value = ''; // Clear input
+            chatBody.scrollTop = chatBody.scrollHeight; // Scroll to bottom
+
+            // Simulate AI response (not connected to actual AI in this HTML version)
+            setTimeout(() => {
+                const aiMessageDiv = document.createElement('div');
+                aiMessageDiv.classList.add('chat-message', 'ai');
+                aiMessageDiv.textContent = "Thank you for your message! In this HTML prototype, the chat is not connected to an AI. Please use the 'Tech Explainer' or 'Fault Code Lookup' sections for AI assistance.";
+                chatBody.appendChild(aiMessageDiv);
+                chatBody.scrollTop = chatBody.scrollHeight; // Scroll to bottom
+            }, 1000);
+        }
+
+        // Initial AI message for chat window (if it opens)
+        window.addEventListener('load', () => {
+             // This is for the chat widget on the HTML page, not the main AI Mate app.
+             // The main AI Mate app is a separate React component, not part of this HTML.
+        });
+
+    </script>
+</body>
+</html>
